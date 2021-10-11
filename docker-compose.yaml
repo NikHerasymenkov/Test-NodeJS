@@ -1,0 +1,30 @@
+version: "3"
+services:
+  api:
+    container_name: 'api'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "yarn && yarn start:debug"
+    volumes:
+      - /app/node_modules
+    ports:
+      - '${API_PORT_EXT:-3000}:3000'
+      - '${API_GATEWAY_DEBUG_PORT_EXT:-9229}:9229'
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: 'postgres'
+    image: postgres:11.5-alpine
+    restart: always
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    env_file:
+      - .env
+    environment:
+      PGDATA: /var/lib/postgressql/data
+    volumes:
+      - ./volumes/pgdata:/var/lib/postgresql/data
